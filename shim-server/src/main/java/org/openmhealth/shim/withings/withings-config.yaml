@@ -50,7 +50,7 @@ paths:
     get:
       description: |
         Retrieves a summary of daily activity information for a user for a given date or range of dates. The summary includes information about the step count, active calories burned, seconds of soft, moderate, and vigorous activity.
-      operationId: getActivity
+      operationId: getBodyMeasures
       parameters:
         - name: userid
           in: query
