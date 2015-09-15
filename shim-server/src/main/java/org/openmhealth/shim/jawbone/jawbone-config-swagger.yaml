@@ -1,0 +1,156 @@
+swagger: '2.0'
+info:
+  version: 0.1.0
+  title: Jawbone-API
+host:  jawbone.com
+basePath: /nudge/api/v.1.1/users/@me/
+
+schemes: 
+  - https
+produces:
+ - application/json
+
+x-pagination:
+  supported: true
+  parameters:
+    - name: limit
+      description: the number per page
+      default: 10
+    - name: next
+      description: uri pointing to the next page
+
+x-pagination-2:
+  supported: true
+  limit-parameter: 
+    supported: true
+    name: limit
+    default: 10
+  next-parameter:
+    supported: true
+    name: 
+  next-response:
+    supported: true
+    name: data.links.next
+    type: uri # uri | parameter
+    uri-basePath: https://jawbone.com/ # the uri to which the next-response value can be appended to 
+  previous-parameter:
+    supported: true
+    name: prev
+
+
+security:
+  - oauth_2:
+    - basic_read
+    - extended_read
+    - move_read
+    - sleep_read
+    - weight_read
+    - heartrate_read
+
+paths:
+  /body_events:
+    get:
+      description: |
+        Returns different body measurement events for an individual. 
+        Each measurement contains body measures such as weight, bmi, and body fat percentage.
+      
+      operationId: getBodyEvents
+      
+      x-rate-limit:
+        value: 60
+        per-time-unit: minute
+        per-user: false
+
+      x-time-frame-alignment: day
+      
+      x-effective-time-frame-retrieval:
+        supported: true
+        time-frame-limit:
+          value: 200
+          time-unit: days
+
+      x-created-time-frame-retrieval:
+        supported: false
+
+      x-updated-time-frame-retrieval:
+        supported: false
+
+      parameters:
+        - name: userid
+          in: query
+          description: identifies the individual for which to retrieve data
+          required: true
+          type: number
+        - name: date
+          in: query
+          description: a single date for which to retrieve data; takes precedence over other date parameters 
+          required: false
+          type: string
+          x-date-format: YYYY-MM-DD
+        - name: startdateymd
+          in: query
+          description: a start date for a time frame of data to retrieve; requires enddateymd parameter
+          required: false
+          type: string
+          x-date-format: YYYY-MM-DD
+          x-coupled-with: [enddateymd]
+        - name: enddateymd
+          in: query
+          description: an end date for a time frame of data to retrieve; requires enddateymd parameter
+          required: false
+          type: string
+          x-date-format: YYYY-MM-DD
+          x-coupled-with: [startdateymd]
+      
+      responses: 
+        200:
+            description: activity list response
+            schema: 
+              $ref: '#/definitions/ActivityResponse' 
+      
+      tags: [paginated]
+
+definitions:
+  ActivityResponse:
+    description: the schema of daily activity responses
+    allOf:
+      - required:
+        - data
+        - meta
+        properties:
+          data:
+            type: object
+          meta:
+            type: object
+            
+
+securityDefinitions:
+  oauth_2:
+    type: oauth2
+    flow: accessCode
+    authorizationUrl: https://jawbone.com/auth/oauth2/auth
+    tokenUrl: https://jawbone.com/auth/oauth2/token
+    scopes:
+      basic_read: reads basic info
+      extended_read: reads extended info
+      location_read: reads basic info
+      friends_read: reads basic info
+      mood_read: reads basic info
+      mood_write: reads basic info
+      move_read: reads basic info
+      move_write: reads basic info
+      sleep_read: reads basic info
+      sleep_write: reads basic info
+      meal_read: reads basic info
+      meal_write: reads basic info
+      weight_read: reads basic info
+      weight_write: reads basic info
+      generic_event_read: reads basic info
+      generic_event_write: reads basic info
+      heartrate_read: reads basic info
+    x-type: oauth2
+    
+
+tags:
+  - name: paginated
+    description: indicates that its paginated
