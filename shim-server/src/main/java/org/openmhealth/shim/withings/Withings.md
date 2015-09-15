@@ -55,7 +55,7 @@ Depends on endpoint, most endpoints return time values in unix epoch seconds whi
 - Endpoints: /v2/measure?action=getactivity
 - Reference: http://oauth.withings.com/api/doc#api-Measure-get_activity
 
-Retrieves a summary of activity information for a user for a given date or range of dates (up to 200 days). The summary includes information about the step count, active calories burned, seconds of soft, moderate, and vigorous activity,
+Retrieves a summary of daily activity information for a user for a given date or range of dates (up to 200 days). The summary includes information about the step count, active calories burned, seconds of soft, moderate, and vigorous activity.
 
 ### Parameters
 - Required parameters: userid, oauth authentication information

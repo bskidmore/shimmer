@@ -1,0 +1,146 @@
+swagger: '2.0'
+info:
+  version: 0.1.0
+  title: Withings-API
+host:  wbsapi.withings.net
+
+schemes: 
+  - https
+produces:
+ - application/json
+
+x-pagination:
+  supported: false
+
+security:
+  - oauth_1: []
+
+paths:
+  /v2/measure?action=getactivity:
+    get:
+      description: |
+        Retrieves a summary of daily activity information for a user for a given date or range of dates. 
+        The summary includes information about the step count, active calories burned, seconds of soft, 
+        moderate, and vigorous activity.
+      operationId: getActivity
+      
+      x-rate-limit:
+        value: 60
+        per-time-unit: minute
+        per-user: false
+
+      x-time-frame-alignment: day
+      
+      x-effective-time-frame-retrieval:
+        supported: true
+        time-frame-limit:
+          value: 200
+          time-unit: days
+
+      x-created-time-frame-retrieval:
+        supported: false
+
+      x-updated-time-frame-retrieval:
+        supported: false
+
+      parameters:
+        - name: userid
+          in: query
+          description: identifies the individual for which to retrieve data
+          required: true
+          type: number
+        - name: date
+          in: query
+          description: a single date for which to retrieve data; takes precedence over other date parameters 
+          required: false
+          type: string
+          x-date-format: YYYY-MM-DD
+        - name: startdateymd
+          in: query
+          description: a start date for a time frame of data to retrieve; requires enddateymd parameter
+          required: false
+          type: string
+          x-date-format: YYYY-MM-DD
+          x-coupled-with: [enddateymd]
+        - name: enddateymd
+          in: query
+          description: an end date for a time frame of data to retrieve; requires enddateymd parameter
+          required: false
+          type: string
+          x-date-format: YYYY-MM-DD
+          x-coupled-with: [startdateymd]
+      
+      responses: 
+        200:
+            description: activity list response
+            schema: 
+              $ref: '#/definitions/ActivityResponse' 
+
+  /measure?action=getmeas:
+    get:
+      description: |
+        Retrieves different body measurements for the user, such as weight, height, and blood pressure.
+      operationId: getBodyMeasures
+      parameters:
+        - name: userid
+          in: query
+          description: identifies the individual for which to retrieve data
+          required: true
+          type: number
+        - name: meastype
+          in: query
+          description: the type of measure 
+          required: false
+          type: number
+          enum: [1,4,5,6,8,9,10,11,54]
+        - name: category
+          in: query
+          description: the category of device used
+          required: false
+          type: number
+          enum: [1,2]
+        - name: startdate
+          in: query
+          description: a start date for a time frame of data to retrieve (format unix epoch seconds)
+          required: false
+          type: number
+        - name: enddate
+          in: query
+          description: an end date for a time frame of data to retrieve (format unix epoch seconds)
+          required: false
+          type: number
+      
+      x-rate-limit:
+        value: 60
+        per-unit-time: minute
+        per-user: false
+      
+      responses: 
+        200:
+            description: activity list response
+            schema: 
+              $ref: '#/definitions/ActivityResponse' 
+
+definitions:
+  ActivityResponse:
+    description: the schema of daily activity responses
+    allOf:
+      - required:
+        - id
+        properties:
+          id:
+            type: integer
+            format: int64
+
+securityDefinitions:
+  oauth_1:
+    type: basic
+    x-type: oauth1
+    x-queryParameters: 
+      oauth_consumer_key:
+        description: Developer's unique API key provided by Withings
+        type: string
+    x-settings:
+      requestTokenUri: https://oauth.withings.com/account/request_token
+      authorizationUri: https://oauth.withings.com/account/authorize
+      tokenCredentialsUri: https://oauth.withings.com/account/access_token
