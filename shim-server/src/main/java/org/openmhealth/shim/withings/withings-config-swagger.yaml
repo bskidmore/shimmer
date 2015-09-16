@@ -41,7 +41,7 @@ paths:
         supported: false
 
       x-updated-time-frame-retrieval:
-        supported: false
+        supported: true
 
       parameters:
         - name: userid

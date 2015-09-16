@@ -57,9 +57,7 @@ paths:
       operationId: getBodyEvents
       
       x-rate-limit:
-        value: 60
-        per-time-unit: minute
-        per-user: false
+        supported: false
 
       x-time-frame-alignment: day
       
@@ -73,34 +71,35 @@ paths:
         supported: false
 
       x-updated-time-frame-retrieval:
-        supported: false
+        supported: true
 
-      parameters:
-        - name: userid
-          in: query
-          description: identifies the individual for which to retrieve data
-          required: true
-          type: number
+      x-supported-measures:
+        - namespace: omh
+          schema: body-weight:1.x
+        - namespace: omh
+          schema: body-mass-index:1.x
+
+      parameters: # probably want to make this just a list of the parameters we actually use, instead of two different date options
         - name: date
           in: query
           description: a single date for which to retrieve data; takes precedence over other date parameters 
           required: false
           type: string
-          x-date-format: YYYY-MM-DD
-        - name: startdateymd
+          x-date-format: YYYYMMDD
+        - name: start_time
           in: query
-          description: a start date for a time frame of data to retrieve; requires enddateymd parameter
+          description: a start date for a time frame of data to retrieve; requires end_time parameter
           required: false
           type: string
-          x-date-format: YYYY-MM-DD
-          x-coupled-with: [enddateymd]
-        - name: enddateymd
+          x-date-format: unix-epoch-seconds
+          x-coupled-with: [end_time]
+        - name: end_time
           in: query
-          description: an end date for a time frame of data to retrieve; requires enddateymd parameter
+          description: an end date for a time frame of data to retrieve; requires start_time parameter
           required: false
           type: string
-          x-date-format: YYYY-MM-DD
-          x-coupled-with: [startdateymd]
+          x-date-format: unix-epoch-seconds
+          x-coupled-with: [start_time]
       
       responses: 
         200:
@@ -130,6 +129,14 @@ securityDefinitions:
     flow: accessCode
     authorizationUrl: https://jawbone.com/auth/oauth2/auth
     tokenUrl: https://jawbone.com/auth/oauth2/token
+    x-lifespan:
+      value: 1
+      time-unit: year
+    x-refresh:
+      supported: true
+      retrievable: true
+      refreshTokenUrl: https://jawbone.com/auth/oauth2/token
+      retrieveRefreshTokenUrl: https://jawbone.com/nudge/api/v.1.1/users/@me/refreshToken
     scopes:
       basic_read: reads basic info
       extended_read: reads extended info
@@ -153,4 +160,4 @@ securityDefinitions:
 
 tags:
   - name: paginated
-    description: indicates that its paginated
+    description: indicates that the endpoint supports pagination
